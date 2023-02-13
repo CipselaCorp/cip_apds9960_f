@@ -23,7 +23,7 @@ const APDS9960_GDATAL = 0x98
 const APDS9960_GDATAH = 0x99
 const APDS9960_BDATAL = 0x9A
 const APDS9960_BDATAH = 0x9B
-let illuminance = 0
+
 let _wbuf = pins.createBuffer(2);
 
 /**
@@ -104,7 +104,7 @@ namespace CIP_APDS9960 {
         ALSEnable(true)
         //WaitEnable(true)
     }
-
+    let illuminance = 0
     
     /**
      * Returns a number describing the lux 
