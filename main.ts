@@ -24,18 +24,21 @@ const APDS9960_GDATAH = 0x99
 const APDS9960_BDATAL = 0x9A
 const APDS9960_BDATAH = 0x9B
 
-let _wbuf = pins.createBuffer(2);
 
 /**
    * set APDS9960's reg
    */
-function set_Reg_lux(reg: number, dat: number): void {
+function setReg(reg: number, dat: number): void {
+    let _wbuf = pins.createBuffer(2);
     _wbuf[0] = reg;
     _wbuf[1] = dat;
     pins.i2cWriteBuffer(APDS9960_ADDRESS, _wbuf);
 }
 
-function get_Reg_lux(reg: number): number {
+/**
+ * get a reg
+ */
+function getReg(reg: number): number {
     pins.i2cWriteNumber(APDS9960_ADDRESS, reg, NumberFormat.UInt8BE);
     return pins.i2cReadNumber(APDS9960_ADDRESS, NumberFormat.UInt8BE);
 }
@@ -46,88 +49,101 @@ function getReg_int(reg: number): number {
     return pins.i2cReadNumber(APDS9960_ADDRESS, NumberFormat.Int8LE);
 }
 
-
-function get2Reg_lux(reg: number): number {
+/**
+ * get two reg, UInt16LE format
+ */
+function get2Reg(reg: number): number {
     pins.i2cWriteNumber(APDS9960_ADDRESS, reg, NumberFormat.UInt8BE);
     return pins.i2cReadNumber(APDS9960_ADDRESS, NumberFormat.Int16BE);
 }
 
 
 function PowerOn() {
-    let t = get_Reg_lux(APDS9960_ENABLE)
+    let t = getReg(APDS9960_ENABLE)
     t |= 1
-    set_Reg_lux(APDS9960_ENABLE, t)
+    setReg(APDS9960_ENABLE, t)
     basic.pause(3)
 }
 
 
+function PowerOff() {
+    let t = getReg(APDS9960_ENABLE)
+    t &= 0xFE
+    setReg(APDS9960_ENABLE, t)
+}
+
+
 function ALSEnable(en: boolean = true) {
-    let t = get_Reg_lux(APDS9960_ENABLE)
+    let t = getReg(APDS9960_ENABLE)
     t &= 0x13
     if (en) t |= 19
-    set_Reg_lux(APDS9960_ENABLE, t)
+    setReg(APDS9960_ENABLE, t)
 }
 
 function GAIN(en: boolean = true) {
-    let t = get_Reg_lux(APDS9960_CONTROL)
+    let t = getReg(APDS9960_CONTROL)
     t &= 0xFD
     if (en) t |= 2
-    set_Reg_lux(APDS9960_CONTROL, t)
+    setReg(APDS9960_CONTROL, t)
 }
 
 
 function PERS_REG(en: boolean = true) {
-    let t = get_Reg_lux(APDS9960_PERS)
+    let t = getReg(APDS9960_PERS)
     t &= 0x02
     if (en) t |= 1
-    set_Reg_lux(APDS9960_PERS, t)
+    setReg(APDS9960_PERS, t)
 }
 
+function init() {
+    //ATIME(256 - 8)
+    //setReg(APDS9960_ENABLE, 0)
+    setReg(APDS9960_ATIME, 0xFF)
+    basic.pause(10)
+    setReg(APDS9960_WTIME, 0xFF)
+    //setReg(APDS9960_PERS, 0x22)
+    basic.pause(10)
+    setReg(APDS9960_CONFIG1, 0X40)
+    //setReg(APDS9930_PPULSE, 8)
+    //setReg(APDS9960_CONTROL, 0x2C)
+    basic.pause(10)
+    PERS_REG(true)
+    basic.pause(10)
+    GAIN(true);
+    basic.pause(10)
+    ALSEnable(true)
+    basic.pause(10)
+    PowerOn();
+    //WaitEnable(true)
+}
 
 //% color=#4c6ef5 weight=25 icon="\uf043" block="APDS9960"
 namespace CIP_APDS9960 {
-    /**
-     * Initialize
-     */
-    //% blockId="APDS9960_INIT" block="APDS9960 Initialize"
-    //% weight=210 blockGap=8
-    export function init_apds() {
-        PowerOn();
-        set_Reg_lux(APDS9960_ATIME, 0xFF)
-        set_Reg_lux(APDS9960_WTIME, 0xFF)
-        //setReg(APDS9960_PERS, 0x22)
-        set_Reg_lux(APDS9960_CONFIG1, 0X40)
-        //setReg(APDS9930_PPULSE, 8)
-        //setReg(APDS9960_CONTROL, 0x2C)
-        PERS_REG(true)
-        GAIN(true);
-        ALSEnable(true)
-        //WaitEnable(true)
-    }
     let illuminance = 0
-    
+    init();
     /**
      * Returns a number describing the lux 
     */
     //% blockId="APDS9960_read_LUX"
     //% block="leer lux"
     export function leer_lux(): number {
-        let l = get_Reg_lux(APDS9960_ENABLE);
-        let G = get_Reg_lux(APDS9960_CONTROL)
-        let TL = get2Reg_lux(APDS9960_AILTIL);
-        let TH = get2Reg_lux(APDS9960_AIHTH);
-        let LH = get2Reg_lux(APDS9960_AILTH);
-        let HL = get2Reg_lux(APDS9960_AIHTL);
-        let c = get2Reg_lux(APDS9960_CDATAL);
+        //let G = getReg(APDS9960_CONTROL)
+        let TL = get2Reg(APDS9960_AILTIL);
+        let TH = get2Reg(APDS9960_AIHTH);
+        let LH = get2Reg(APDS9960_AILTH);
+        let HL = get2Reg(APDS9960_AIHTL);
+        //let l = getReg(APDS9960_STATUS);
+        let c = get2Reg(APDS9960_CDATAL);
         basic.pause(10)
         if ((c >= TH + LH) || (c <= TL + HL)) {
-            let r = get2Reg_lux(APDS9960_RDATAL);
-            let g = get2Reg_lux(APDS9960_GDATAL);
-            let b = get2Reg_lux(APDS9960_BDATAL);
+            let r = get2Reg(APDS9960_RDATAL);
+            let g = get2Reg(APDS9960_GDATAL);
+            let b = get2Reg(APDS9960_BDATAL);
             illuminance = (-0.32466 * r) + (1.57837 * g) + (-0.73191 * b);
             illuminance = illuminance / 255
             if (illuminance < 0) illuminance = Math.abs(illuminance)
         }
-        return G
+        return illuminance
+
     }
 }
