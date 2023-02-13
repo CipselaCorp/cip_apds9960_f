@@ -93,20 +93,14 @@ namespace CIP_APDS9960 {
     //% weight=210 blockGap=8
     export function init_apds() {
         set_Reg_lux(APDS9960_ATIME, 0xFF)
-        basic.pause(10)
         set_Reg_lux(APDS9960_WTIME, 0xFF)
         //setReg(APDS9960_PERS, 0x22)
-        basic.pause(10)
         set_Reg_lux(APDS9960_CONFIG1, 0X40)
         //setReg(APDS9930_PPULSE, 8)
         //setReg(APDS9960_CONTROL, 0x2C)
-        basic.pause(10)
         PERS_REG(true)
-        basic.pause(10)
         GAIN(true);
-        basic.pause(10)
         ALSEnable(true)
-        basic.pause(10)
         PowerOn();
         //WaitEnable(true)
     }
