@@ -24,12 +24,12 @@ const APDS9960_GDATAH = 0x99
 const APDS9960_BDATAL = 0x9A
 const APDS9960_BDATAH = 0x9B
 
+let _wbuf = pins.createBuffer(2);
 
 /**
    * set APDS9960's reg
    */
 function setReg(reg: number, dat: number): void {
-    let _wbuf = pins.createBuffer(2);
     _wbuf[0] = reg;
     _wbuf[1] = dat;
     pins.i2cWriteBuffer(APDS9960_ADDRESS, _wbuf);
@@ -60,7 +60,7 @@ function get2Reg(reg: number): number {
 
 function PowerOn() {
     let t = getReg(APDS9960_ENABLE)
-    t |= 2
+    t |= 1
     setReg(APDS9960_ENABLE, t)
     basic.pause(3)
 }
@@ -127,7 +127,7 @@ namespace CIP_APDS9960 {
     //% blockId="APDS9960_read_LUX"
     //% block="leer lux"
     export function leer_lux(): number {
-        //let G = getReg(APDS9960_CONTROL)
+        let G = getReg(APDS9960_ENABLE)
         let TL = get2Reg(APDS9960_AILTIL);
         let TH = get2Reg(APDS9960_AIHTH);
         let LH = get2Reg(APDS9960_AILTH);
@@ -143,7 +143,7 @@ namespace CIP_APDS9960 {
             illuminance = illuminance / 255
             if (illuminance < 0) illuminance = Math.abs(illuminance)
         }
-        return l
+        return G
 
     }
 }
