@@ -112,7 +112,7 @@ namespace CIP_APDS9960 {
     //% blockId="APDS9960_read_LUX"
     //% block="leer lux"
     export function leer_lux(): number {
-        //let l = get_Reg_lux(APDS9960_STATUS);
+        let l = get_Reg_lux(APDS9960_ENABLE);
         let G = get_Reg_lux(APDS9960_CONTROL)
         let TL = get2Reg_lux(APDS9960_AILTIL);
         let TH = get2Reg_lux(APDS9960_AIHTH);
@@ -128,6 +128,6 @@ namespace CIP_APDS9960 {
             illuminance = illuminance / 255
             if (illuminance < 0) illuminance = Math.abs(illuminance)
         }
-        return G
+        return l
     }
 }
