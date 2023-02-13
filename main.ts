@@ -23,6 +23,7 @@ const APDS9960_GDATAL = 0x98
 const APDS9960_GDATAH = 0x99
 const APDS9960_BDATAL = 0x9A
 const APDS9960_BDATAH = 0x9B
+let illuminance = 0
 let _wbuf = pins.createBuffer(2);
 
 /**
@@ -34,9 +35,6 @@ function set_Reg_lux(reg: number, dat: number): void {
     pins.i2cWriteBuffer(APDS9960_ADDRESS, _wbuf);
 }
 
-/**
- * get a reg
- */
 function get_Reg_lux(reg: number): number {
     pins.i2cWriteNumber(APDS9960_ADDRESS, reg, NumberFormat.UInt8BE);
     return pins.i2cReadNumber(APDS9960_ADDRESS, NumberFormat.UInt8BE);
@@ -48,9 +46,7 @@ function getReg_int(reg: number): number {
     return pins.i2cReadNumber(APDS9960_ADDRESS, NumberFormat.Int8LE);
 }
 
-/**
- * get two reg, UInt16LE format
- */
+
 function get2Reg_lux(reg: number): number {
     pins.i2cWriteNumber(APDS9960_ADDRESS, reg, NumberFormat.UInt8BE);
     return pins.i2cReadNumber(APDS9960_ADDRESS, NumberFormat.Int16BE);
@@ -115,7 +111,7 @@ namespace CIP_APDS9960 {
         //WaitEnable(true)
     }
 
-    let illuminance = 0
+    
     /**
      * Returns a number describing the lux 
     */
