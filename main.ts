@@ -62,7 +62,7 @@ function PowerOn() {
     let t = getReg(APDS9960_ENABLE)
     t |= 1
     setReg(APDS9960_ENABLE, t)
-    basic.pause(3)
+    //basic.pause(3)
 }
 
 
