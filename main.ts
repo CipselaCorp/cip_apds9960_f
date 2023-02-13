@@ -60,7 +60,7 @@ function get2Reg(reg: number): number {
 
 function PowerOn() {
     let t = getReg(APDS9960_ENABLE)
-    t |= 1
+    t |= 2
     setReg(APDS9960_ENABLE, t)
     basic.pause(3)
 }
@@ -132,7 +132,7 @@ namespace CIP_APDS9960 {
         let TH = get2Reg(APDS9960_AIHTH);
         let LH = get2Reg(APDS9960_AILTH);
         let HL = get2Reg(APDS9960_AIHTL);
-        //let l = getReg(APDS9960_STATUS);
+        let l = getReg(APDS9960_STATUS);
         let c = get2Reg(APDS9960_CDATAL);
         basic.pause(10)
         if ((c >= TH + LH) || (c <= TL + HL)) {
@@ -143,7 +143,7 @@ namespace CIP_APDS9960 {
             illuminance = illuminance / 255
             if (illuminance < 0) illuminance = Math.abs(illuminance)
         }
-        return illuminance
+        return l
 
     }
 }
